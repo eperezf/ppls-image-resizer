@@ -83,13 +83,9 @@ export const handler = async (event, context) => {
 		}
 	}
 	console.timeEnd("R2 Get Object")
-
 	const imageByteArray = await res.Body.transformToByteArray()
 	const image = sharp(imageByteArray)
-
 	const imageMetadata = await image.metadata()
-
-
 	await Promise.all(resolutions.map(async (resolution) => {
 		console.time("Process " + resolution.width + "x" + resolution.height);
 		let resized = await image
@@ -106,7 +102,7 @@ export const handler = async (event, context) => {
 		let putCommand = new PutObjectCommand({Bucket: process.env.BUCKET_NAME, ...data})
 		try {
 			let putResponse = await S3.send(putCommand)
-			console.log(putResponse);
+			//console.log(putResponse);
 		} catch (error) {
 			console.log(error)
 			return 0
