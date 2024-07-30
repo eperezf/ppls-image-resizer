@@ -19,19 +19,61 @@ const S3 = new S3Client({
   },
 });
 
+const resolutions = [
+	{width: 100, height: 100},
+	{width: 1024, height: 540},
+	{width: 1155, height: 760},
+	{width: 1170, height: 585},
+	{width: 1400, height: 739},
+	{width: 1440, height: 750},
+	{width: 293, height: 155},
+	{width: 293, height: 293},
+	{width: 300, height: 158},
+	{width: 370, height: 247},
+	{width: 370, height: 490},
+	{width: 390, height: 390},
+	{width: 585, height: 293},
+	{width: 585, height: 585},
+	{width: 585, height: 760},
+	{width: 770, height: 406},
+	{width: 770, height: 513},
+	{width: 770, height: 760},
+	{width: 900, height: 760},
+]
 
+const allowedExtensions = [
+	'.png',
+	'.jpg',
+	'.jpeg',
+	'.webp',
+	'.gif',
+	'.svg'
+]
 
-
+const regex = /(.*)(\.[0-9a-z]+$)/ig
 
 export const handler = async (event, context) => {
 
-	console.log(event.filename);
+	console.log(`Resizing file ${event.filename}`);
+	var imageExtension = ''
+	var imageFilename = ''
+	const extractor = event.filename.matchAll(regex)
+	for (const match of extractor) {
+		imageFilename = match[1]
+		imageExtension = match[2]
+	}
+
+	if (!allowedExtensions.includes(imageExtension)) {
+		console.error('File extension is not an image. Aborting.')
+		return 0
+	}
+
+
 
 	let command = new GetObjectCommand({Bucket: process.env.BUCKET_NAME, Key: event.filename})
 	var res = {}
 	try {
 		res = await S3.send(command)
-		console.log(res)
 	} catch (error) {
 		if (error.Code == 'NoSuchKey') {
 			console.error('No such key')
@@ -45,9 +87,25 @@ export const handler = async (event, context) => {
 	const image = sharp(imageByteArray)
 
 	const imageMetadata = await image.metadata()
-	console.log(imageMetadata);
 
-	const resizedImage = await image.resize(100, 100).toBuffer()
+	for (const resolution of resolutions) {
+		let resized = await image
+			.resize(resolution.width, resolution.height)
+			.jpeg({force: false, quality: 80, chromaSubsampling: imageMetadata.chromaSubsampling})
+			.png({force: false, quality: 80})
+			.toBuffer()
+		let data = {
+			Key: `${imageFilename}-${resolution.width}x${resolution.height}${imageExtension}`,
+			Body: resized,
+			ContentType: `image/${imageMetadata.format}`
+		}
+		let putCommand = new PutObjectCommand({Bucket: process.env.BUCKET_NAME, ...data})
+		let putResponse = await S3.send(putCommand)
+		console.log(putResponse)
+	}
+
+
+
 
 	// let data = {
 	// 	Key: 'resized-' + event.filename,
