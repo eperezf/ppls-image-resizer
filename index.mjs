@@ -53,7 +53,7 @@ const allowedExtensions = [
 const regex = /(.*)(\.[0-9a-z]+$)/ig
 
 export const handler = async (event, context) => {
-
+	console.time("Process Image")
 	console.log(`Resizing file ${event.filename}`);
 	var imageExtension = ''
 	var imageFilename = ''
@@ -69,7 +69,7 @@ export const handler = async (event, context) => {
 	}
 
 
-
+	console.time("R2 Get Object")
 	let command = new GetObjectCommand({Bucket: process.env.BUCKET_NAME, Key: event.filename})
 	var res = {}
 	try {
@@ -82,46 +82,39 @@ export const handler = async (event, context) => {
 			console.log(error)
 		}
 	}
+	console.timeEnd("R2 Get Object")
 
 	const imageByteArray = await res.Body.transformToByteArray()
 	const image = sharp(imageByteArray)
 
 	const imageMetadata = await image.metadata()
 
-	for (const resolution of resolutions) {
+
+	await Promise.all(resolutions.map(async (resolution) => {
+		console.time("Process " + resolution.width + "x" + resolution.height);
 		let resized = await image
 			.resize(resolution.width, resolution.height)
-			.jpeg({force: false, quality: 80, chromaSubsampling: imageMetadata.chromaSubsampling})
-			.png({force: false, quality: 80})
-			.toBuffer()
+			.jpeg({ force: false, quality: 80, chromaSubsampling: imageMetadata.chromaSubsampling })
+			.png({ force: false, quality: 80 })
+			.toBuffer();
+		
 		let data = {
 			Key: `${imageFilename}-${resolution.width}x${resolution.height}${imageExtension}`,
 			Body: resized,
-			ContentType: `image/${imageMetadata.format}`
-		}
+			ContentType: `image/${imageMetadata.format}`,
+		};
 		let putCommand = new PutObjectCommand({Bucket: process.env.BUCKET_NAME, ...data})
-		let putResponse = await S3.send(putCommand)
-		console.log(putResponse)
-	}
+		try {
+			let putResponse = await S3.send(putCommand)
+			console.log(putResponse);
+		} catch (error) {
+			console.log(error)
+			return 0
+		}
+		console.timeEnd("Process " + resolution.width + "x" + resolution.height);
+	}));
+	console.timeEnd("Process Image")
 
-
-
-
-	// let data = {
-	// 	Key: 'resized-' + event.filename,
-	// 	Body: resizedImage,
-	// 	ContentType: 'image/png'
-	// }
-
-	// let putCommand = new PutObjectCommand({Bucket: process.env.BUCKET_NAME, ...data})
-	// let putResponse = await S3.send(putCommand)
-	// console.log(putResponse)
-
-
-
-
-
-  // TODO implement
   const response = {
     statusCode: 200,
     body: JSON.stringify('Hello from Lambda!'),
