@@ -1,16 +1,17 @@
 {
   "name": "ppls-image-resizer",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.0.1",
+  "description": "Pisapapeles Image Resizer",
+  "main": "index.mjs",
   "scripts": {
-    "deploy": "wrangler deploy",
-    "dev": "wrangler dev",
-    "start": "wrangler dev",
-    "test": "vitest"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node test.mjs"
   },
-  "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.4.5",
-    "wrangler": "^3.60.3",
-    "vitest": "1.5.0"
+  "author": "Eduardo Perez",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.620.1",
+    "dotenv": "^16.4.5",
+    "sharp": "^0.33.4"
   }
 }
