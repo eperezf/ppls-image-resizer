@@ -53,11 +53,14 @@ const allowedExtensions = [
 const regex = /(.*)(\.[0-9a-z]+$)/ig
 
 export const handler = async (event, context) => {
+	const body = JSON.parse(event.body)
+	const filename = body.filename
+
 	console.time("Process Image")
-	console.log(`Resizing file ${event.filename}`);
+	console.log(`Resizing file ${filename}`);
 	var imageExtension = ''
 	var imageFilename = ''
-	const extractor = event.filename.matchAll(regex)
+	const extractor = filename.matchAll(regex)
 	for (const match of extractor) {
 		imageFilename = match[1]
 		imageExtension = match[2]
@@ -70,7 +73,7 @@ export const handler = async (event, context) => {
 
 
 	console.time("R2 Get Object")
-	let command = new GetObjectCommand({Bucket: process.env.BUCKET_NAME, Key: event.filename})
+	let command = new GetObjectCommand({Bucket: process.env.BUCKET_NAME, Key: filename})
 	var res = {}
 	try {
 		res = await S3.send(command)
@@ -86,8 +89,8 @@ export const handler = async (event, context) => {
 	const imageByteArray = await res.Body.transformToByteArray()
 	const image = sharp(imageByteArray)
 	const imageMetadata = await image.metadata()
+	console.time("Resize and upload")
 	await Promise.all(resolutions.map(async (resolution) => {
-		console.time("Process " + resolution.width + "x" + resolution.height);
 		let resized = await image
 			.resize(resolution.width, resolution.height)
 			.jpeg({ force: false, quality: 80, chromaSubsampling: imageMetadata.chromaSubsampling })
@@ -107,8 +110,8 @@ export const handler = async (event, context) => {
 			console.log(error)
 			return 0
 		}
-		console.timeEnd("Process " + resolution.width + "x" + resolution.height);
 	}));
+	console.timeEnd("Resize and upload")
 	console.timeEnd("Process Image")
 
   const response = {

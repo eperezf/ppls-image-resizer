@@ -1,3 +1,42 @@
 {
-  "filename": "01_50SE_portada.jpg"
+	"headers": {
+			"content-length": "69",
+			"x-amzn-tls-version": "TLSv1.3",
+			"x-forwarded-proto": "https",
+			"postman-token": "6c9883ce-1a53-4e6a-b358-35a1ae78edcf",
+			"x-forwarded-port": "443",
+			"x-forwarded-for": "181.42.23.144",
+			"accept": "*/*",
+			"x-amzn-tls-cipher-suite": "TLS_AES_128_GCM_SHA256",
+			"x-amzn-trace-id": "Root=1-66aa5053-6760a481609cbe205ad5d981",
+			"host": "7tjzu4x7mpafxuujnjrtugltwq0rnoat.lambda-url.us-east-1.on.aws",
+			"content-type": "application/json",
+			"cache-control": "no-cache",
+			"accept-encoding": "gzip, deflate, br",
+			"user-agent": "PostmanRuntime/7.37.3"
+	},
+	"isBase64Encoded": false,
+	"rawPath": "/",
+	"routeKey": "$default",
+	"requestContext": {
+			"accountId": "anonymous",
+			"timeEpoch": 1722437715528,
+			"routeKey": "$default",
+			"stage": "$default",
+			"domainPrefix": "7tjzu4x7mpafxuujnjrtugltwq0rnoat",
+			"requestId": "5e4e8b42-3f94-4813-aff3-21b4fc7eb2a0",
+			"domainName": "7tjzu4x7mpafxuujnjrtugltwq0rnoat.lambda-url.us-east-1.on.aws",
+			"http": {
+					"path": "/",
+					"protocol": "HTTP/1.1",
+					"method": "POST",
+					"sourceIp": "181.42.23.144",
+					"userAgent": "PostmanRuntime/7.37.3"
+			},
+			"time": "31/Jul/2024:14:55:15 +0000",
+			"apiId": "7tjzu4x7mpafxuujnjrtugltwq0rnoat"
+	},
+	"body": "{\n    \"filename\": \"uploads/2014/05/0904-gigaom-ms-spot-630x420.jpg\"\n}",
+	"version": "2.0",
+	"rawQueryString": ""
 }
