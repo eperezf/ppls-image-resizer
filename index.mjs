@@ -52,8 +52,9 @@ const allowedExtensions = [
 const regex = /(.*)(\.[0-9a-z]+$)/ig
 
 export const handler = async (event, context) => {
-	const body = JSON.parse(event.body)
-	const filename = body.filename
+	var text = Buffer.from(event.body, 'base64').toString('ascii');
+	const imageObject = JSON.parse(text)
+	const filename = imageObject.Key
 
 	console.time("Process Image")
 	console.log(`Resizing file ${filename}`);
