@@ -10,8 +10,8 @@
   "author": "Eduardo Perez",
   "license": "ISC",
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.620.1",
+    "@aws-sdk/client-s3": "^3.1166.0",
     "dotenv": "^16.4.5",
-    "sharp": "^0.33.4"
+    "sharp": "^0.35.5"
   }
 }
